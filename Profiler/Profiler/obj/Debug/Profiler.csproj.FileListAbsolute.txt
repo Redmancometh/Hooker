@@ -1,0 +1,11 @@
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Profiler.exe.config
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Profiler.exe
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Profiler.pdb
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Mono.Cecil.dll
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\obj\Debug\Profiler.IDEWindow.resources
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\obj\Debug\Profiler.MainWindow.resources
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\obj\Debug\Profiler.Properties.Resources.resources
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\obj\Debug\Profiler.csproj.GenerateResource.Cache
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\obj\Debug\Profiler.exe
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\obj\Debug\Profiler.pdb
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\obj\Debug\Profiler.csprojResolveAssemblyReference.cache

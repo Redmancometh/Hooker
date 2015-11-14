@@ -1,0 +1,8 @@
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Agent\bin\Debug\Agent.dll
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Agent\bin\Debug\Agent.pdb
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Agent\bin\Debug\Mono.Cecil.dll
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Agent.dll
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Agent.pdb
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Agent\obj\Debug\Agent.dll
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Agent\obj\Debug\Agent.pdb
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Agent\obj\Debug\Agent.csprojResolveAssemblyReference.cache
