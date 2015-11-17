@@ -9,3 +9,11 @@ C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\obj\Debu
 C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\obj\Debug\Profiler.exe
 C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\obj\Debug\Profiler.pdb
 C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\obj\Debug\Profiler.csprojResolveAssemblyReference.cache
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Mono.Cecil.Mdb.dll
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Mono.Cecil.Pdb.dll
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Mono.Cecil.Rocks.dll
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Mono.Cecil.pdb
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Mono.Cecil.Mdb.pdb
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Mono.Cecil.Pdb.pdb
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Mono.Cecil.Rocks.pdb
+C:\Users\Redman\Documents\Visual Studio 2015\Projects\Profiler\Profiler\bin\Debug\Agent.pdb

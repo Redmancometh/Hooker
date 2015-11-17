@@ -47,6 +47,7 @@
             this.textBox1.Size = new System.Drawing.Size(763, 451);
             this.textBox1.TabIndex = 0;
             this.textBox1.Text = "public void jumpMethod()\r\n{\r\n\r\n}";
+            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // button1
             // 
@@ -65,6 +66,7 @@
             this.compilerOutput.Name = "compilerOutput";
             this.compilerOutput.Size = new System.Drawing.Size(1408, 108);
             this.compilerOutput.TabIndex = 2;
+            this.compilerOutput.SelectedIndexChanged += new System.EventHandler(this.compilerOutput_SelectedIndexChanged);
             // 
             // label1
             // 
@@ -92,6 +94,7 @@
             this.classNameLabel.Size = new System.Drawing.Size(69, 13);
             this.classNameLabel.TabIndex = 5;
             this.classNameLabel.Text = "Class Name: ";
+            this.classNameLabel.Click += new System.EventHandler(this.classNameLabel_Click);
             // 
             // classNameField
             // 
@@ -110,10 +113,10 @@
             this.label2.TabIndex = 7;
             this.label2.Text = "Assembly Name: ";
             // 
-            // assemblyName
+            // assemblyNameField
             // 
             this.assemblyNameField.Location = new System.Drawing.Point(926, 64);
-            this.assemblyNameField.Name = "assemblyName";
+            this.assemblyNameField.Name = "assemblyNameField";
             this.assemblyNameField.Size = new System.Drawing.Size(143, 20);
             this.assemblyNameField.TabIndex = 8;
             this.assemblyNameField.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
@@ -134,6 +137,7 @@
             this.Controls.Add(this.textBox1);
             this.Name = "IDEWindow";
             this.Text = "IDEWindow";
+            this.Load += new System.EventHandler(this.IDEWindow_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -33,9 +33,10 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.fileLabel = new System.Windows.Forms.Label();
-            this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.injectFileLabel = new System.Windows.Forms.Label();
+            this.processButton = new System.Windows.Forms.Button();
+            this.constructorInject = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // button1
@@ -55,6 +56,7 @@
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(279, 21);
             this.comboBox1.TabIndex = 1;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBoxUpdate);
             // 
             // button2
             // 
@@ -86,19 +88,9 @@
             this.fileLabel.Text = "Target Assembly:";
             this.fileLabel.Click += new System.EventHandler(this.label1_Click_1);
             // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(13, 416);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(105, 23);
-            this.button4.TabIndex = 5;
-            this.button4.Text = "Assembly Builder";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.openCodeView);
-            // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(125, 416);
+            this.button5.Location = new System.Drawing.Point(15, 417);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(103, 23);
             this.button5.TabIndex = 6;
@@ -115,14 +107,37 @@
             this.injectFileLabel.TabIndex = 7;
             this.injectFileLabel.Text = "Assembly to Inject:";
             // 
+            // processButton
+            // 
+            this.processButton.Location = new System.Drawing.Point(124, 417);
+            this.processButton.Name = "processButton";
+            this.processButton.Size = new System.Drawing.Size(75, 23);
+            this.processButton.TabIndex = 8;
+            this.processButton.Text = "Process";
+            this.processButton.UseVisualStyleBackColor = true;
+            this.processButton.Click += new System.EventHandler(this.processButton_Click);
+            // 
+            // constructorInject
+            // 
+            this.constructorInject.AutoSize = true;
+            this.constructorInject.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.constructorInject.Location = new System.Drawing.Point(15, 359);
+            this.constructorInject.Name = "constructorInject";
+            this.constructorInject.Size = new System.Drawing.Size(135, 17);
+            this.constructorInject.TabIndex = 9;
+            this.constructorInject.Text = "Inject Into Constructors";
+            this.constructorInject.UseVisualStyleBackColor = true;
+            this.constructorInject.CheckedChanged += new System.EventHandler(this.constructorInject_CheckedChanged);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(541, 542);
+            this.Controls.Add(this.constructorInject);
+            this.Controls.Add(this.processButton);
             this.Controls.Add(this.injectFileLabel);
             this.Controls.Add(this.button5);
-            this.Controls.Add(this.button4);
             this.Controls.Add(this.fileLabel);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
@@ -143,9 +158,10 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Label fileLabel;
-        private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Label injectFileLabel;
+        private System.Windows.Forms.Button processButton;
+        private System.Windows.Forms.CheckBox constructorInject;
     }
 }
 

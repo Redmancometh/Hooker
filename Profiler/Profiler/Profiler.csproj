@@ -43,6 +43,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\Desktop\SEH-master\SEH-master\SEInject\cecil\Mono.Cecil.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Cecil.Mdb">
+      <HintPath>Resources\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>Resources\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks">
+      <HintPath>Resources\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -104,6 +113,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Mono.Cecil.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Agent\Agent.csproj">
+      <Project>{b80c67b2-9cff-447a-b1cc-5757099f45fa}</Project>
+      <Name>Agent</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

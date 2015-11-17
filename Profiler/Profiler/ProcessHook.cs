@@ -4,22 +4,44 @@ using Mono.Collections.Generic;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
-
+using Mono.Cecil.Rocks;
 namespace Profiler
 {
     public class ProcessHook
     {
+        public ProcessHook()
+        {
+
+        }
         // Will be re-used for exe support private AssemblyDefinition sourceAssembly;
         private ModuleDefinition sourceAssembly;
         private AssemblyDefinition targetAssembly;
         private MethodDefinition sourceMethod;
         //  private Thread hookThread;
         private String fileName;
+        private Regex ldRegex = new Regex("ldloc[.]\\d+");
+        private Regex stRegex = new Regex("stloc[.]\\d+");
+        private Regex numRegex = new Regex("\\d+");
+        enum HookType { DLL, EXE, UNSUPPORTED };
         public List<Type> getTypes()
         {
             return null;
+        }
+
+        private static HookType getHookType(String fileName)
+        {
+            if (fileName.EndsWith(".dll"))
+            {
+                return HookType.DLL;
+            }
+            else if (fileName.EndsWith(".exe"))
+            {
+                return HookType.EXE;
+            }
+            return HookType.UNSUPPORTED;
         }
 
         public void setSourceAssembly(ModuleDefinition assembly)
@@ -44,19 +66,45 @@ namespace Profiler
             if (System.IO.File.Exists(fileName))
             {
                 checkBackup();
+                Console.WriteLine("trying to load " + fileName);
                 this.targetAssembly = AssemblyDefinition.ReadAssembly(fileName + ".bak");
             }
         }
 
-        public void attemptHook()
+        public virtual void attemptHook(bool constructorHooks)
         {
-            insertHookInstructions();
+            HookType type = getHookType(fileName);
+            switch (type)
+            {
+                case HookType.DLL:
+                    MessageBox.Show("DLL");
+                    processHooks(constructorHooks);
+                    targetAssembly.Write(fileName.Replace(".dll", "") + "mod.dll");
+                    break;
+                case HookType.EXE:
+                    insertEXEHookInstructions();
+                    processHooks(constructorHooks);
+                    targetAssembly.Write(fileName.Replace(".exe", "") + "mod.exe");
+                    break;
+                case HookType.UNSUPPORTED:
+                    MessageBox.Show("Unsupported assembly type");
+                    return;
+            }
         }
 
-        public void insertHookInstructions()
+        public void processHooks(bool constructorHooks)
+        {
+            importMethods();
+            if (constructorHooks)
+            {
+                hookConstructors();
+            }
+        }
+
+        public virtual void insertEXEHookInstructions()
         {
             MethodDefinition targetMethod = targetAssembly.EntryPoint;
-            Console.WriteLine(targetMethod.FullName);
+            int index = 0;
             foreach (Instruction instruction in sourceMethod.Body.Instructions)
             {
                 if (instruction.Operand is TypeReference)
@@ -71,42 +119,244 @@ namespace Profiler
                 {
                     instruction.Operand = targetAssembly.MainModule.Import((FieldReference)instruction.Operand);
                 }
-                if (instruction.Next == null)
+                if (instruction.Next == null || instruction == null)
                 {
                     break;
                 }
-                targetMethod.Body.Instructions.Insert(targetMethod.Body.Instructions.Count - 1, instruction);
+                targetMethod.Body.Instructions.Insert(index++, instruction);
             }
             targetAssembly.MainModule.Kind = ModuleKind.Console;
-            importMethods(targetMethod);
+        }
+
+        public virtual void importMethods()
+        {
+            ModuleDefinition module = targetAssembly.MainModule;
+            foreach (TypeDefinition type in sourceMethod.Module.Types)
+            {
+                if (type.Name == "<Module>") continue;
+                TypeDefinition newType = new TypeDefinition(type.Namespace, type.Name, type.Attributes, module.Import(typeof(object)));
+                module.Types.Add(newType);
+                foreach (MethodDefinition method in type.Methods)
+                {
+                    if (!method.HasBody)
+                    {
+                        continue;
+                    }
+                    MethodDefinition newMethod = new MethodDefinition(method.Name, method.Attributes, module.Import(method.ReturnType));
+                    newMethod.Body.InitLocals = true;
+                    registerVars(method, newMethod);
+                    foreach (Instruction instruction in method.Body.Instructions)
+                    {
+                        if (instruction.Operand is TypeReference)
+                        {
+                            instruction.Operand = targetAssembly.MainModule.Import((TypeReference)instruction.Operand);
+                        }
+
+                        if (instruction.Operand is MethodReference)
+                        {
+                            instruction.Operand = targetAssembly.MainModule.Import((MethodReference)instruction.Operand);
+                        }
+
+                        if (instruction.Operand is FieldReference)
+                        {
+                            instruction.Operand = targetAssembly.MainModule.Import((FieldReference)instruction.Operand);
+                        }
+                        if (instruction.Next == null)
+                        {
+                            newMethod.Body.GetILProcessor().Append(Instruction.Create(OpCodes.Ret));
+                            break;
+                        }
+                        newMethod.Body.GetILProcessor().Append(instruction);
+                    }
+                    newType.Methods.Add(newMethod);
+                }
+            }
+        }
+
+        public virtual void hookConstructors()
+        {
+            MethodDefinition sourceMethodBegin = getMethodFromTypeCollection(sourceAssembly.Types, "beginConstructorHook");
+            MethodDefinition sourceMethodEnd = getMethodFromTypeCollection(sourceAssembly.Types, "endConstructorHook");
+            foreach (ModuleDefinition module in targetAssembly.Modules)
+            {
+                foreach (TypeDefinition type in module.Types)
+                {
+                    foreach (MethodDefinition method in type.Methods)
+                    {
+                        if (!method.HasBody || method == null)
+                        {
+                            continue;
+                        }
+                        if (method.IsConstructor)
+                        {
+                            removeReturns(method);
+                            if (sourceMethodBegin.HasBody)
+                            {
+                                removeReturns(sourceMethodBegin);
+                                registerVars(sourceMethodBegin, method);
+                                foreach (Instruction instruction in sourceMethodBegin.Body.Instructions)
+                                {
+                                    method.Body.Instructions.Insert(0, instruction);
+                                }
+                            }
+                            if (sourceMethodEnd.HasBody)
+                            {
+                                removeReturns(sourceMethodEnd);
+                                registerVars(sourceMethodEnd, method);
+                                foreach (Instruction instruction in sourceMethodEnd.Body.Instructions)
+                                {
+                                    method.Body.Instructions.Insert(method.Body.Instructions.Count - 1, instruction);
+                                }
+                            }
+                            method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+                        }
+                    }
+                }
+            }
+        }
+
+        public void removeReturns(MethodDefinition method)
+        {
+            List<int> removalIndexes = new List<int>();
+            for (int x = 0; x<method.Body.Instructions.Count; x++)
+            {
+                if(method.Body.Instructions[x].OpCode.ToString().Contains("ret"))
+                {
+                    removalIndexes.Add(x);
+                }
+            }
+            foreach(int index in removalIndexes)
+            {
+                Console.WriteLine("Removed: " +method.Body.Instructions[index]);
+                method.Body.Instructions.RemoveAt(index);
+            }
+        }
+
+        public virtual void registerVars(MethodDefinition oldMethod, MethodDefinition newMethod)
+        {
+            if (oldMethod.Body.HasVariables)
+            {
+                foreach (VariableDefinition variable in oldMethod.Body.Variables)
+                {
+                    try
+                    {
+                        object typeRef = newMethod.Module.Import(variable.VariableType);
+                        newMethod.Body.GetILProcessor().Append(typeRef as Instruction);
+                        newMethod.Body.Variables.Add(new VariableDefinition(variable.VariableType));
+                    }
+                    catch (Exception e)
+                    {
+                        continue;
+                    }
+                }
+            }
+        }
+
+
+        /* ModuleDefinition module = targetAssembly.MainModule;
+            foreach (TypeDefinition type in sourceAssembly.Types)
+            {
+                var newType = new TypeDefinition(type.Namespace, type.Name, type.Attributes, module.Import(typeof(object)));
+                foreach (MethodDefinition method in type.Methods)
+                {
+                    newType.Attributes = type.Attributes;
+                    Console.WriteLine("Method: " + method);
+                    var newMethod = new MethodDefinition(method.Name, method.Attributes, module.Import(method.ReturnType));
+                    var cilWorker = newMethod.Body.GetILProcessor();
+                    foreach (VariableDefinition variable in method.Body.Variables)
+                    {
+                        Console.WriteLine(variable.VariableType);
+                        var import=module.Import(variable.VariableType);
+                    }
+                    foreach (var il in method.Body.Instructions)
+                    {
+                        // grab method reference
+                        MethodReference methodRef = (MethodReference)il.Operand;
+                        if (methodRef != null)
+                        {
+                            il.Operand = targetAssembly.MainModule.Import(methodRef.Resolve());
+                        }
+                        cilWorker.Append(il);
+                    }
+                    newType.Methods.Add(newMethod);
+
+                }
+                module.Types.Add(newType);
+                module.Import(newType);
+            }
             targetAssembly.Write(fileName.Replace(".exe", "") + "mod.exe");
+
+        /*
+
+            targetMethod.DeclaringType.Methods.Add();
             foreach (Instruction instruction in targetMethod.Body.Instructions)
             {
                 Console.WriteLine(instruction);
             }
+            targetAssembly.MainModule.Kind = ModuleKind.Console;
+            importMethods(targetMethod);
+        */
+        public int getStlocStart(MethodDefinition method)
+        {
+            int stLoc = 0;
+            foreach (Instruction instruction in method.Body.Instructions)
+            {
+                foreach (Match match in stRegex.Matches(instruction.ToString()))
+                {
+                    Console.WriteLine(match.Value + " Match");
+                    try
+                    {
+                        int stBuffer = Int32.Parse(numRegex.Match(match.Value).Value);
+                        if (stBuffer > stLoc)
+                        {
+                            stLoc = stBuffer;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.StackTrace);
+                        continue;
+                    }
+
+                }
+            }
+            Console.WriteLine("Returning stloc at " + stLoc);
+            return stLoc;
         }
 
-        public void insertMethodInstructions(MethodDefinition oldMethod, ModuleDefinition module)
+        public int getLdlocStart(MethodDefinition method)
         {
-
+            int ldloc = 0;
+            foreach (Instruction instruction in method.Body.Instructions)
+            {
+                foreach (Match match in ldRegex.Matches(instruction.ToString()))
+                {
+                    Console.WriteLine(match.Value + " Match");
+                    try
+                    {
+                        int stBuffer = Int32.Parse(numRegex.Match(match.Value).Value);
+                        if (stBuffer > ldloc)
+                        {
+                            ldloc = stBuffer;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.StackTrace);
+                        continue;
+                    }
+                }
+            }
+            Console.WriteLine("Returning stloc at " + ldloc);
+            return ldloc;
         }
 
-
-        public void importMethods(MethodDefinition targetMethod)
+        public virtual void importMethods(MethodDefinition targetMethod)
         {
-            /* ModuleDefinition module = targetMethod.Module;
-             var type = new TypeDefinition("Profiler","Agent",Mono.Cecil.TypeAttributes.Public | Mono.Cecil.TypeAttributes.Abstract | Mono.Cecil.TypeAttributes.Sealed,module.Import(typeof(object)));
-             module.Types.Add(type);
-             var method = new MethodDefinition("Start",Mono.Cecil.MethodAttributes.Public | Mono.Cecil.MethodAttributes.Static,module.Import(typeof(void)));
-
-             type.Methods.Add(method);
-
-             method.Parameters.Add(new ParameterDefinition(module.Import(typeof(string))));*/
-
             ModuleDefinition module = targetMethod.Module;
             foreach (TypeDefinition type in sourceAssembly.Types)
             {
-                Console.WriteLine("Attributes" + type.Attributes);
+                targetAssembly.MainModule.Import(type);
                 var newType = new TypeDefinition(type.Namespace, type.Name, type.Attributes, module.Import(typeof(object)));
                 module.Types.Add(newType);
                 foreach (MethodDefinition method in type.Methods)
@@ -118,16 +368,6 @@ namespace Profiler
                         newMethod.Parameters.Add(paramDef);
                     }
                 }
-            }
-        }
-
-        public Boolean doSkipImport(TypeReference type)
-        {
-            switch (type.Name.ToLower())
-            {
-                case "<module>":
-                    return true;
-                default: return false;
             }
         }
 
@@ -143,8 +383,9 @@ namespace Profiler
         {
             foreach (MethodDefinition method in type.Methods)
             {
-                if (method.Name == methodName)
+                if (method.Name == methodName && method.HasBody)
                 {
+                    Console.WriteLine("Found: " + method);
                     return method;
                 }
             }

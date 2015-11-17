@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Agent;
 
 namespace Profiler
 {
@@ -18,16 +19,10 @@ namespace Profiler
         [STAThread]
         static void Main()
         {
-            ProcessHook hook = new ProcessHook();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            window = new MainWindow(hook);
+            window = new MainWindow();
             Application.Run(window);
-        }
-
-        public void hopMethod()
-        {
-            Console.WriteLine("YO");
         }
     }
 }

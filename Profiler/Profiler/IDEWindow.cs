@@ -53,5 +53,25 @@ namespace Profiler
         {
 
         }
+
+        private void IDEWindow_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void compilerOutput_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void classNameLabel_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

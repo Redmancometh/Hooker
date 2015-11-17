@@ -11,6 +11,8 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Collections;
 using Mono.Cecil;
+using System.IO;
+using System.Threading;
 
 namespace Profiler
 {
@@ -18,12 +20,12 @@ namespace Profiler
     {
         Dictionary<String, Process> processMap = new Dictionary<String, Process>();
         private String targetFileName { get; set; }
-        public String injectFileName { get; set; } 
-        private ProcessHook procHook;
+        public String injectFileName { get; set; }
+        private String testDirectory { get; set; }
+        public ProcessHook procHook = new ProcessHook();
         private IDEWindow ideView;
-        public MainWindow(ProcessHook procHook)
+        public MainWindow()
         {
-            this.procHook = procHook;
             InitializeComponent();
         }
 
@@ -45,16 +47,16 @@ namespace Profiler
         private void hook(object sender, EventArgs e)
         {
             String sourceAssemblyName = this.injectFileLabel.Text;
-            if(this.targetFileName!=null)
+            if (this.targetFileName != null)
             {
-                if(sourceAssemblyName!=null)
+                if (sourceAssemblyName != null)
                 {
                     ModuleDefinition module = ModuleDefinition.ReadModule(sourceAssemblyName);
                     Console.WriteLine("Assembly Name: " + sourceAssemblyName);
                     procHook.setSourceAssembly(module);
                     procHook.setTargetAssembly(this.targetFileName);
                     Console.WriteLine("Attempting hook...");
-                    procHook.attemptHook();
+                    procHook.attemptHook(constructorInject.Checked);
                     Console.WriteLine("Hook Finished");
                 }
             }
@@ -78,6 +80,35 @@ namespace Profiler
             }
         }
 
+        public void getAssemblyDir()
+        {
+            FolderBrowserDialog openFileDialog1 = new FolderBrowserDialog();
+            DialogResult result = openFileDialog1.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                testDirectory = openFileDialog1.SelectedPath;
+                Parallel.Invoke(() => { searchFiles("*.dll", testDirectory); }, () => { searchFiles("*.exe", testDirectory); });
+            }
+        }
+
+
+        public void searchFiles(String filePattern, String fileDirectory)
+        {
+            foreach (String file in Directory.GetFiles(testDirectory, filePattern, SearchOption.TopDirectoryOnly))
+            {
+                try
+                {
+                    AssemblyName testAssembly = AssemblyName.GetAssemblyName(file);
+                    Console.WriteLine("Found assembly: " + file);
+                    comboBox1.Items.Add(file);
+                }
+                catch (Exception e)
+                {
+                    continue;
+                }
+            }
+        }
+
         public void getTargetFile()
         {
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
@@ -96,19 +127,18 @@ namespace Profiler
             if (targetFileName != null)
             {
                 this.comboBox1.Items.Add(targetFileName);
-                this.comboBox1.SelectedIndex = comboBox1.Items.Count-1;
+                this.comboBox1.SelectedIndex = comboBox1.Items.Count - 1;
                 this.fileLabel.Text = "File Added!";
             }
         }
 
         private void label1_Click_1(object sender, EventArgs e)
         {
-
         }
 
         private void openCodeView(object sender, EventArgs e)
         {
-            if(ideView==null)
+            if (ideView == null)
             {
                 ideView = new IDEWindow();
                 ideView.Show();
@@ -119,30 +149,22 @@ namespace Profiler
         {
             getInjectFile();
         }
-    }
-}
 
-/*this.comboBox1.Items.Clear();
-processMap.Clear();
-Process[] processlist = Process.GetProcesses();
-foreach (Process process in processlist)
-{
-    Console.WriteLine(process);
-    this.comboBox1.Items.Add(process.ProcessName);
-    if (!processMap.ContainsKey(process.ProcessName))
-    {
-        processMap.Add(process.ProcessName, process);
-    }
-    try
-    {
-        Console.WriteLine(process.Modules.Count);
-        foreach(Module m in process.Modules)
+        private void processButton_Click(object sender, EventArgs e)
+        {
+            getAssemblyDir();
+        }
+
+        private void comboBoxUpdate(object sender, EventArgs e)
+        {
+            this.targetFileName = comboBox1.SelectedItem.ToString();
+        }
+
+        private void constructorInject_CheckedChanged(object sender, EventArgs e)
         {
 
         }
     }
-    catch(Exception ex)
-    {
-        continue;
-    }
-}*/
+}
+
+
