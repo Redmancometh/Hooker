@@ -46,6 +46,7 @@ namespace Profiler
 
         private void hook(object sender, EventArgs e)
         {
+            procHook.replaceEntry = replaceEntryBox.Checked;
             String sourceAssemblyName = this.injectFileLabel.Text;
             if (this.targetFileName != null)
             {
@@ -87,19 +88,40 @@ namespace Profiler
             if (result == DialogResult.OK)
             {
                 testDirectory = openFileDialog1.SelectedPath;
-                Parallel.Invoke(() => { searchFiles("*.dll", testDirectory); }, () => { searchFiles("*.exe", testDirectory); });
+                if (searchDLL.Checked && searchExe.Checked)
+                {
+                    Parallel.Invoke(() => { searchFiles("*.dll", testDirectory); }, () => { searchFiles("*.exe", testDirectory); });
+                }
+                else if(searchDLL.Checked)
+                {
+                    Parallel.Invoke(() => { searchFiles("*.dll", testDirectory); } );
+                }
+                else if(searchExe.Checked)
+                {
+                    Parallel.Invoke(() => { searchFiles("*.exe", testDirectory); });
+                }
             }
         }
 
 
         public void searchFiles(String filePattern, String fileDirectory)
         {
-            foreach (String file in Directory.GetFiles(testDirectory, filePattern, SearchOption.TopDirectoryOnly))
+            Console.WriteLine("Searching");
+            SearchOption option;
+            if(recursiveBox.Checked)
+            {
+                option = SearchOption.AllDirectories;
+            }
+            else
+            {
+                option = SearchOption.TopDirectoryOnly;
+            }
+            foreach (String file in Directory.GetFiles(testDirectory, filePattern, option))
             {
                 try
                 {
                     AssemblyName testAssembly = AssemblyName.GetAssemblyName(file);
-                    Console.WriteLine("Found assembly: " + file);
+                    Console.WriteLine("Found assembly: " + file+"\r\n\r\n\r\n");
                     comboBox1.Items.Add(file);
                 }
                 catch (Exception e)
@@ -107,6 +129,7 @@ namespace Profiler
                     continue;
                 }
             }
+            Console.WriteLine("Done Searching.");
         }
 
         public void getTargetFile()
@@ -163,6 +186,21 @@ namespace Profiler
         private void constructorInject_CheckedChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void replaceEntry_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dllEntryChanged(object sender, EventArgs e)
+        {
+            procHook.dllEntry = dllEntry.Text;
         }
     }
 }

@@ -33,6 +33,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.methodList = new System.Windows.Forms.ComboBox();
+            this.checkStatic = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // objectList
@@ -83,11 +84,22 @@
             this.methodList.SelectedIndexChanged += new System.EventHandler(this.methodList_SelectedIndexChanged);
             this.methodList.SelectedValueChanged += new System.EventHandler(this.methodListUpdated);
             // 
+            // checkStatic
+            // 
+            this.checkStatic.Location = new System.Drawing.Point(93, 132);
+            this.checkStatic.Name = "checkStatic";
+            this.checkStatic.Size = new System.Drawing.Size(98, 23);
+            this.checkStatic.TabIndex = 6;
+            this.checkStatic.Text = "Check Static";
+            this.checkStatic.UseVisualStyleBackColor = true;
+            this.checkStatic.Click += new System.EventHandler(this.checkStatic_Click);
+            // 
             // ProfilerWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(812, 495);
+            this.Controls.Add(this.checkStatic);
             this.Controls.Add(this.methodList);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button1);
@@ -107,5 +119,6 @@
         public System.Windows.Forms.Button button1;
         public System.Windows.Forms.Label label1;
         public System.Windows.Forms.ComboBox methodList;
+        public System.Windows.Forms.Button checkStatic;
     }
 }

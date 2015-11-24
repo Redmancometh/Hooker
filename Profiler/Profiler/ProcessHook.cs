@@ -25,10 +25,17 @@ namespace Profiler
         private Regex ldRegex = new Regex("ldloc[.]\\d+");
         private Regex stRegex = new Regex("stloc[.]\\d+");
         private Regex numRegex = new Regex("\\d+");
+        public bool replaceEntry = false;
+        public String dllEntry { get; set; }
         enum HookType { DLL, EXE, UNSUPPORTED };
         public List<Type> getTypes()
         {
             return null;
+        }
+
+        public void setReplaceEntry(bool replaceEntry)
+        {
+            this.replaceEntry = replaceEntry;
         }
 
         private static HookType getHookType(String fileName)
@@ -43,6 +50,7 @@ namespace Profiler
             }
             return HookType.UNSUPPORTED;
         }
+        
 
         public void setSourceAssembly(ModuleDefinition assembly)
         {
@@ -105,6 +113,12 @@ namespace Profiler
         {
             MethodDefinition targetMethod = targetAssembly.EntryPoint;
             int index = 0;
+            removeReturns(sourceMethod);
+            removeReturns(targetMethod);
+            if (replaceEntry)
+            {
+                targetMethod.Body.Instructions.Clear();
+            }
             foreach (Instruction instruction in sourceMethod.Body.Instructions)
             {
                 if (instruction.Operand is TypeReference)
@@ -119,8 +133,9 @@ namespace Profiler
                 {
                     instruction.Operand = targetAssembly.MainModule.Import((FieldReference)instruction.Operand);
                 }
-                if (instruction.Next == null || instruction == null)
+                if (instruction.Next == null)
                 {
+                    targetMethod.Body.Instructions.Insert(targetMethod.Body.Instructions.Count, Instruction.Create(OpCodes.Ret));
                     break;
                 }
                 targetMethod.Body.Instructions.Insert(index++, instruction);
@@ -227,8 +242,15 @@ namespace Profiler
             }
             foreach(int index in removalIndexes)
             {
-                Console.WriteLine("Removed: " +method.Body.Instructions[index]);
-                method.Body.Instructions.RemoveAt(index);
+                try
+                {
+                    Console.WriteLine("Removed: " + method.Body.Instructions[index]);
+                    method.Body.Instructions.RemoveAt(index);
+                }
+                catch(Exception e)
+                {
+
+                }
             }
         }
 
@@ -252,50 +274,6 @@ namespace Profiler
             }
         }
 
-
-        /* ModuleDefinition module = targetAssembly.MainModule;
-            foreach (TypeDefinition type in sourceAssembly.Types)
-            {
-                var newType = new TypeDefinition(type.Namespace, type.Name, type.Attributes, module.Import(typeof(object)));
-                foreach (MethodDefinition method in type.Methods)
-                {
-                    newType.Attributes = type.Attributes;
-                    Console.WriteLine("Method: " + method);
-                    var newMethod = new MethodDefinition(method.Name, method.Attributes, module.Import(method.ReturnType));
-                    var cilWorker = newMethod.Body.GetILProcessor();
-                    foreach (VariableDefinition variable in method.Body.Variables)
-                    {
-                        Console.WriteLine(variable.VariableType);
-                        var import=module.Import(variable.VariableType);
-                    }
-                    foreach (var il in method.Body.Instructions)
-                    {
-                        // grab method reference
-                        MethodReference methodRef = (MethodReference)il.Operand;
-                        if (methodRef != null)
-                        {
-                            il.Operand = targetAssembly.MainModule.Import(methodRef.Resolve());
-                        }
-                        cilWorker.Append(il);
-                    }
-                    newType.Methods.Add(newMethod);
-
-                }
-                module.Types.Add(newType);
-                module.Import(newType);
-            }
-            targetAssembly.Write(fileName.Replace(".exe", "") + "mod.exe");
-
-        /*
-
-            targetMethod.DeclaringType.Methods.Add();
-            foreach (Instruction instruction in targetMethod.Body.Instructions)
-            {
-                Console.WriteLine(instruction);
-            }
-            targetAssembly.MainModule.Kind = ModuleKind.Console;
-            importMethods(targetMethod);
-        */
         public int getStlocStart(MethodDefinition method)
         {
             int stLoc = 0;

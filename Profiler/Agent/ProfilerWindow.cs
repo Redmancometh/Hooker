@@ -44,6 +44,7 @@ namespace Agent
 
         private void objectListChanged(object sender, EventArgs e)
         {
+            methodList.Items.Clear();
             Type type = objectList.SelectedItem.GetType();
             foreach (MethodInfo method in type.GetMethods())
             {
@@ -107,7 +108,6 @@ namespace Agent
             int paramCount = method.GetParameters().Count();
             if (paramCount > 0)
             {
-                Console.WriteLine(paramCount + " Param count");
                 List<object> paramsList = new List<object>();
                 for (int x = 0; x < paramCount; x++)
                 {
@@ -120,6 +120,7 @@ namespace Agent
                     }
                 }
                 returnValue = method.Invoke(objectList.SelectedItem, paramsList.ToArray());
+                MessageBox.Show("Invoked Method!");
             }
             else
             {
@@ -169,6 +170,11 @@ namespace Agent
         private void methodList_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void checkStatic_Click(object sender, EventArgs e)
+        {
+            
         }
     }
 }

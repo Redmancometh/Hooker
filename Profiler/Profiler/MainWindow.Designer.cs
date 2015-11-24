@@ -37,6 +37,11 @@
             this.injectFileLabel = new System.Windows.Forms.Label();
             this.processButton = new System.Windows.Forms.Button();
             this.constructorInject = new System.Windows.Forms.CheckBox();
+            this.searchExe = new System.Windows.Forms.CheckBox();
+            this.searchDLL = new System.Windows.Forms.CheckBox();
+            this.recursiveBox = new System.Windows.Forms.CheckBox();
+            this.replaceEntryBox = new System.Windows.Forms.CheckBox();
+            this.dllEntry = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // button1
@@ -129,11 +134,74 @@
             this.constructorInject.UseVisualStyleBackColor = true;
             this.constructorInject.CheckedChanged += new System.EventHandler(this.constructorInject_CheckedChanged);
             // 
+            // searchExe
+            // 
+            this.searchExe.AutoSize = true;
+            this.searchExe.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.searchExe.Location = new System.Drawing.Point(294, 421);
+            this.searchExe.Name = "searchExe";
+            this.searchExe.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.searchExe.Size = new System.Drawing.Size(84, 17);
+            this.searchExe.TabIndex = 10;
+            this.searchExe.Text = "Search EXE";
+            this.searchExe.UseVisualStyleBackColor = true;
+            // 
+            // searchDLL
+            // 
+            this.searchDLL.AutoSize = true;
+            this.searchDLL.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.searchDLL.Location = new System.Drawing.Point(205, 421);
+            this.searchDLL.Name = "searchDLL";
+            this.searchDLL.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.searchDLL.Size = new System.Drawing.Size(83, 17);
+            this.searchDLL.TabIndex = 11;
+            this.searchDLL.Text = "Search DLL";
+            this.searchDLL.UseVisualStyleBackColor = true;
+            this.searchDLL.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
+            // 
+            // recursiveBox
+            // 
+            this.recursiveBox.AutoSize = true;
+            this.recursiveBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.recursiveBox.Location = new System.Drawing.Point(387, 421);
+            this.recursiveBox.Name = "recursiveBox";
+            this.recursiveBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.recursiveBox.Size = new System.Drawing.Size(74, 17);
+            this.recursiveBox.TabIndex = 12;
+            this.recursiveBox.Text = "Recursive";
+            this.recursiveBox.UseVisualStyleBackColor = true;
+            // 
+            // replaceEntryBox
+            // 
+            this.replaceEntryBox.AutoSize = true;
+            this.replaceEntryBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.replaceEntryBox.Location = new System.Drawing.Point(15, 336);
+            this.replaceEntryBox.Name = "replaceEntryBox";
+            this.replaceEntryBox.Size = new System.Drawing.Size(159, 17);
+            this.replaceEntryBox.TabIndex = 13;
+            this.replaceEntryBox.Text = "Replace Entire EntryMethod";
+            this.replaceEntryBox.UseVisualStyleBackColor = true;
+            this.replaceEntryBox.CheckedChanged += new System.EventHandler(this.replaceEntry_CheckedChanged);
+            // 
+            // dllEntry
+            // 
+            this.dllEntry.Location = new System.Drawing.Point(255, 510);
+            this.dllEntry.Name = "dllEntry";
+            this.dllEntry.Size = new System.Drawing.Size(274, 20);
+            this.dllEntry.TabIndex = 14;
+            this.dllEntry.Text = "DLL Entry Point (Namespace.Type.Method)";
+            this.dllEntry.TextChanged += new System.EventHandler(this.dllEntryChanged);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(541, 542);
+            this.Controls.Add(this.dllEntry);
+            this.Controls.Add(this.replaceEntryBox);
+            this.Controls.Add(this.recursiveBox);
+            this.Controls.Add(this.searchDLL);
+            this.Controls.Add(this.searchExe);
             this.Controls.Add(this.constructorInject);
             this.Controls.Add(this.processButton);
             this.Controls.Add(this.injectFileLabel);
@@ -162,6 +230,11 @@
         private System.Windows.Forms.Label injectFileLabel;
         private System.Windows.Forms.Button processButton;
         private System.Windows.Forms.CheckBox constructorInject;
+        private System.Windows.Forms.CheckBox searchExe;
+        private System.Windows.Forms.CheckBox searchDLL;
+        private System.Windows.Forms.CheckBox recursiveBox;
+        private System.Windows.Forms.CheckBox replaceEntryBox;
+        private System.Windows.Forms.TextBox dllEntry;
     }
 }
 
